@@ -30,15 +30,15 @@ function! s:PreviewFile(...)
 		endif
 	endfor
 	if !filereadable(filename)
-		call preview#errmsg('ERROR: preview: file not find "'. filename.'"')
+		call preview_enhance#errmsg('ERROR: preview: file not find "'. filename.'"')
 		return
 	endif
-	call preview#preview_edit(-1, filename, -1, cmd, nohl)
+	call preview_enhance#preview_edit(-1, filename, -1, cmd, nohl)
 endfunc
 
 
 command! -nargs=+ -complete=file PreviewFile call s:PreviewFile(<f-args>)
-command! -nargs=0 PreviewClose call preview#preview_close()
+command! -nargs=0 PreviewClose call preview_enhance#preview_close()
 
 
 "----------------------------------------------------------------------
@@ -46,7 +46,7 @@ command! -nargs=0 PreviewClose call preview#preview_close()
 "----------------------------------------------------------------------
 function! s:PreviewTag(...)
 	let tagname = (a:0 > 0)? a:1 : expand('<cword>')
-	call preview#preview_tag(tagname)
+	call preview_enhance#preview_tag(tagname)
 endfunc
 
 command! -nargs=? PreviewTag call s:PreviewTag(<f-args>)
@@ -60,7 +60,7 @@ function! s:PreviewSignature(bang, ...)
 	if a:bang 
 		let funcname = '<?>'
 	endif
-	call preview#function_echo(funcname, 0)
+	call preview_enhance#function_echo(funcname, 0)
 endfunc
 
 command! -nargs=? -bang PreviewSignature call s:PreviewSignature(<bang>0, <f-args>)
@@ -71,7 +71,7 @@ command! -nargs=? -bang PreviewSignature call s:PreviewSignature(<bang>0, <f-arg
 "----------------------------------------------------------------------
 function! s:PreviewList(bang, ...)
 	let name = (a:0 > 0)? a:1 : expand('<cword>')
-	let size = preview#quickfix_list(name, a:bang, &filetype)
+	let size = preview_enhance#quickfix_list(name, a:bang, &filetype)
 	if size > 0
 		redraw | echo "" | redraw
 		echo "PreviewList: ". size . " tags listed."
@@ -86,9 +86,9 @@ command! -nargs=? -bang PreviewList call s:PreviewList(<bang>0, <f-args>)
 "----------------------------------------------------------------------
 function! s:PreviewScroll(bang, offset)
 	if a:bang == 0
-		call preview#preview_scroll(str2nr(a:offset))
+		call preview_enhance#preview_scroll(str2nr(a:offset))
 	else
-		call preview#previous_scroll(str2nr(a:offset))
+		call preview_enhance#previous_scroll(str2nr(a:offset))
 	endif
 endfunc
 
@@ -99,7 +99,7 @@ command! -nargs=1 -bang PreviewScroll call s:PreviewScroll(<bang>0, <f-args>)
 "----------------------------------------------------------------------
 " goto the preview window
 "----------------------------------------------------------------------
-command! -nargs=1 PreviewGoto call preview#preview_goto(<q-args>)
+command! -nargs=1 PreviewGoto call preview_enhance#preview_goto(<q-args>)
 
 
 "----------------------------------------------------------------------
@@ -107,7 +107,7 @@ command! -nargs=1 PreviewGoto call preview#preview_goto(<q-args>)
 "----------------------------------------------------------------------
 function! s:PreviewQuickfix(...)
 	let linenr = (a:0 > 0)? a:1 : 0
-	call preview#preview_quickfix(linenr)
+	call preview_enhance#preview_quickfix(linenr)
 endfunc
 
 

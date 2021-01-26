@@ -12,7 +12,7 @@
 "----------------------------------------------------------------------
 
 " save all window's view
-function! preview#window_saveview()
+function! preview_enhance#window_saveview()
 	function! s:window_view_save()
 		let w:preview_window_view = winsaveview()
 	endfunc
@@ -22,7 +22,7 @@ function! preview#window_saveview()
 endfunc
 
 " restore all window's view
-function! preview#window_loadview()
+function! preview_enhance#window_loadview()
 	function! s:window_view_rest()
 		if exists('w:preview_window_view')
 			call winrestview(w:preview_window_view)
@@ -35,7 +35,7 @@ function! preview#window_loadview()
 endfunc
 
 " unique window id
-function! preview#window_uid(tabnr, winnr)
+function! preview_enhance#window_uid(tabnr, winnr)
 	let name = 'preview_window_unique_id'
 	let uid = gettabwinvar(a:tabnr, a:winnr, name)
 	if type(uid) == 1 && uid == ''
@@ -100,7 +100,7 @@ function! preview#window_uid(tabnr, winnr)
 endfunc
 
 " unique window id to [tabnr, winnr], [0, 0] for not find
-function! preview#window_find(uid)
+function! preview_enhance#window_find(uid)
 	let name = 'preview_window_unique_id'
 	" search current tabpagefirst
 	for l:winnr in range(1, winnr('$'))
@@ -120,7 +120,7 @@ function! preview#window_find(uid)
 endfunc
 
 " switch to tabwin
-function! preview#window_goto_tabwin(tabnr, winnr)
+function! preview_enhance#window_goto_tabwin(tabnr, winnr)
 	if a:tabnr != '' && a:tabnr != '%'
 		if tabpagenr() != a:tabnr
 			silent! exec "tabn ". a:tabnr
@@ -132,17 +132,17 @@ function! preview#window_goto_tabwin(tabnr, winnr)
 endfunc
 
 " switch to window by uid
-function! preview#window_goto_uid(uid)
-	let [l:tabnr, l:winnr] = preview#window_find(a:uid)
+function! preview_enhance#window_goto_uid(uid)
+	let [l:tabnr, l:winnr] = preview_enhance#window_find(a:uid)
 	if l:tabnr == 0 || l:winnr == 0
 		return 1
 	endif
-	call preview#window_goto_tabwin(l:tabnr, l:winnr)
+	call preview_enhance#window_goto_tabwin(l:tabnr, l:winnr)
 	return 0
 endfunc
 
 " new window and return window uid, zero for error
-function! preview#window_new(position, size, avoid)
+function! preview_enhance#window_new(position, size, avoid)
 	function! s:window_new_action(mode)
 		if a:mode == 0
 			let w:preview_window_saveview = winsaveview()
@@ -153,10 +153,10 @@ function! preview#window_new(position, size, avoid)
 			endif
 		endif
 	endfunc
-	let uid = preview#window_uid('%', '%')
+	let uid = preview_enhance#window_uid('%', '%')
 	let retval = 0
 	noautocmd windo call s:window_new_action(0)
-	noautocmd call preview#window_goto_uid(uid)
+	noautocmd call preview_enhance#window_goto_uid(uid)
 	if type(a:avoid) == 3
 		for i in range(winnr('$'))
 			let ok = 1
@@ -200,12 +200,12 @@ function! preview#window_new(position, size, avoid)
 	else
 		rightbelow vnew
 	endif
-	let retval = preview#window_uid('%', '%')
+	let retval = preview_enhance#window_uid('%', '%')
 	noautocmd windo call s:window_new_action(1)
 	if retval > 0
-		noautocmd call preview#window_goto_uid(retval)
+		noautocmd call preview_enhance#window_goto_uid(retval)
 	endif
-	call preview#window_goto_uid(uid)
+	call preview_enhance#window_goto_uid(uid)
 	return retval
 endfunc
 
@@ -213,7 +213,7 @@ endfunc
 "----------------------------------------------------------------------
 " search buftype and filetype
 "----------------------------------------------------------------------
-function! preview#window_search(buftype, filetype, modifiable)
+function! preview_enhance#window_search(buftype, filetype, modifiable)
 	for i in range(winnr('$'))
 		if getwinvar(i + 1, '&buftype') == a:buftype 
 			if getwinvar(i + 1, '&filetype') == a:filetype
@@ -230,15 +230,15 @@ endfunc
 "----------------------------------------------------------------------
 " reposition window
 "----------------------------------------------------------------------
-function! preview#window_up(color)
+function! preview_enhance#window_up(color)
 	if has('folding')
 		silent! .foldopen!
 	endif
 	noautocmd exec "normal! zz"
-	if &previewwindow && a:color != 0 && g:preview#highlight != ''
+	if &previewwindow && a:color != 0 && g:preview_enhance#highlight != ''
 		let xline = line('.')
 		match none
-		exec 'match '.g:preview#highlight.' "\%'. xline.'l"'
+		exec 'match '.g:preview_enhance#highlight.' "\%'. xline.'l"'
 	endif
 	let height = winheight('%') / 4
 	let winfo = winsaveview()
@@ -253,24 +253,24 @@ endfunc
 "----------------------------------------------------------------------
 " preview window
 "----------------------------------------------------------------------
-if !exists('g:preview#preview_position')
-	let g:preview#preview_position = "right"
+if !exists('g:preview_enhance#preview_position')
+	let g:preview_enhance#preview_position = "right"
 endif
 
-if !exists('g:preview#preview_vsize')
-	let g:preview#preview_vsize = 0
+if !exists('g:preview_enhance#preview_vsize')
+	let g:preview_enhance#preview_vsize = 0
 endif
 
-if !exists('g:preview#preview_size')
-	let g:preview#preview_size = 0
+if !exists('g:preview_enhance#preview_size')
+	let g:preview_enhance#preview_size = 0
 endif
 
 
 " check preview window is open ?
-function! preview#preview_check()
+function! preview_enhance#preview_check()
 	for i in range(winnr('$'))
 		if getwinvar(i + 1, '&previewwindow', 0)
-			return preview#window_uid('%', i + 1)
+			return preview_enhance#window_uid('%', i + 1)
 		endif
 	endfor
 	return 0
@@ -278,36 +278,36 @@ endfunc
 
 
 " open preview vertical or horizon
-function! preview#preview_open()
-	let pid = preview#preview_check()
+function! preview_enhance#preview_open()
+	let pid = preview_enhance#preview_check()
 	if pid == 0
-		let uid = preview#window_uid('%', '%')
-		let pos = g:preview#preview_position
-		let size = g:preview#preview_vsize
+		let uid = preview_enhance#window_uid('%', '%')
+		let pos = g:preview_enhance#preview_position
+		let size = g:preview_enhance#preview_vsize
 		if pos == 'top' || pos == 'bottom' || pos == '0' || pos == '1'
-			let size = g:preview#preview_size
+			let size = g:preview_enhance#preview_size
 		endif
 		let avoid = ['quickfix', 'help', 'nofile']
-		let pid = preview#window_new(pos, size, avoid)
+		let pid = preview_enhance#window_new(pos, size, avoid)
 		if pid > 0
-			noautocmd call preview#window_goto_uid(pid)
+			noautocmd call preview_enhance#window_goto_uid(pid)
 			set previewwindow
 			if get(g:, 'preview_nolist', 0)
 				setlocal nobuflisted
 			endif
 		endif
-		noautocmd call preview#window_goto_uid(uid)
+		noautocmd call preview_enhance#window_goto_uid(uid)
 	endif
 	return pid
 endfunc
 
 " close preview window
-function! preview#preview_close()
+function! preview_enhance#preview_close()
 	silent pclose
 endfunc
 
 " echo error message
-function! preview#errmsg(msg)
+function! preview_enhance#errmsg(msg)
 	redraw | echo '' | redraw
 	echohl ErrorMsg
 	echom a:msg
@@ -315,7 +315,7 @@ function! preview#errmsg(msg)
 endfunc
 
 " echo cmdline message
-function! preview#cmdmsg(content, highlight)
+function! preview_enhance#cmdmsg(content, highlight)
 	let saveshow = &showmode
 	set noshowmode
     let wincols = &columns
@@ -346,7 +346,7 @@ endfunc
 "----------------------------------------------------------------------
 " taglist
 "----------------------------------------------------------------------
-function! preview#taglist(pattern)
+function! preview_enhance#taglist(pattern)
     let ftags = []
     try
         let ftags = taglist(a:pattern)
@@ -390,12 +390,12 @@ endfunc
 "----------------------------------------------------------------------
 " easy tagname
 "----------------------------------------------------------------------
-function! preview#tagfind(tagname)
+function! preview_enhance#tagfind(tagname)
 	let pattern = escape(a:tagname, '[\*~^')
-	let result = preview#taglist("^". pattern . "$")
+	let result = preview_enhance#taglist("^". pattern . "$")
 	if type(result) == 0 || (type(result) == 3 && result == [])
 		if pattern !~ '^\(catch\|if\|for\|while\|switch\)$'
-			let result = preview#taglist('::'. pattern .'$')
+			let result = preview_enhance#taglist('::'. pattern .'$')
 		endif
 	endif
 	if type(result) == 0 || (type(result) == 3 && result == [])
@@ -425,26 +425,26 @@ endfunc
 "----------------------------------------------------------------------
 " highlight name
 "----------------------------------------------------------------------
-if !exists('g:preview#highlight')
-	let g:preview#highlight = 'Search'
+if !exists('g:preview_enhance#highlight')
+	let g:preview_enhance#highlight = 'Search'
 endif
 
 
 "----------------------------------------------------------------------
 " display matched tag in the preview window
 "----------------------------------------------------------------------
-function! preview#preview_tag(tagname)
+function! preview_enhance#preview_tag(tagname)
 	if &previewwindow
 		return 0
 	endif
-	let uid = preview#window_uid('%', '%')
-	let pid = preview#preview_check()
+	let uid = preview_enhance#window_uid('%', '%')
+	let pid = preview_enhance#preview_check()
 	let opt = {"tagname":""}
 	let varname = 'preview_preview_tag_cache'
 	let reuse = 0
 	let index = 0
 	if pid > 0
-		let [l:tabnr, l:winnr] = preview#window_find(pid)
+		let [l:tabnr, l:winnr] = preview_enhance#window_find(pid)
 		let saveopt = gettabwinvar(l:tabnr, l:winnr, varname)
 		if type(saveopt) == type({})
 			let l:tagname = get(saveopt, 'tagname', '')
@@ -456,7 +456,7 @@ function! preview#preview_tag(tagname)
 	endif
 	if reuse == 0
 		let opt.tagname = a:tagname
-		let opt.taglist = preview#tagfind(a:tagname)
+		let opt.taglist = preview_enhance#tagfind(a:tagname)
 		let opt.index = 0
 		if len(opt.taglist) > 0 && pid > 0
 			call settabwinvar(l:tabnr, l:winnr, varname, opt)
@@ -468,29 +468,29 @@ function! preview#preview_tag(tagname)
 		endif
 	endif
 	if len(opt.taglist) == 0 
-		call preview#errmsg('E257: preview: tag not find "'. a:tagname.'"')
+		call preview_enhance#errmsg('E257: preview: tag not find "'. a:tagname.'"')
 		return 1
 	endif
 	if opt.index >= len(opt.taglist)
-		call preview#errmsg('E257: preview: index error')
+		call preview_enhance#errmsg('E257: preview: index error')
 		return 2
 	endif
 	let taginfo = opt.taglist[opt.index]
 	let filename = taginfo.filename
 	if !filereadable(filename)
-		call preview#errmsg('E484: Can not open file '.filename)
+		call preview_enhance#errmsg('E484: Can not open file '.filename)
 		return 3
 	endif
 	if pid == 0
-		let pid = preview#preview_open()
-		let [l:tabnr, l:winnr] = preview#window_find(pid)
+		let pid = preview_enhance#preview_open()
+		let [l:tabnr, l:winnr] = preview_enhance#window_find(pid)
 	endif
 	call settabwinvar(l:tabnr, l:winnr, varname, opt)
-	call preview#window_goto_uid(uid)
-	call preview#window_saveview()
-	call preview#window_goto_tabwin(l:tabnr, l:winnr)
+	call preview_enhance#window_goto_uid(uid)
+	call preview_enhance#window_saveview()
+	call preview_enhance#window_goto_tabwin(l:tabnr, l:winnr)
 	silent exec 'e! '.fnameescape(filename)
-	call preview#window_loadview()
+	call preview_enhance#window_loadview()
 	if &previewwindow
 		match none
 	endif
@@ -503,33 +503,33 @@ function! preview#preview_tag(tagname)
 		silent! exec "nohl"
 		" unsilent echom taginfo.cmd
 	endif
-	if g:preview#highlight != ''
+	if g:preview_enhance#highlight != ''
 		call search("$", "b")
 		call search(escape(a:tagname, '[\*~^'))
-		let cmd = 'match ' . g:preview#highlight
+		let cmd = 'match ' . g:preview_enhance#highlight
 		exe cmd. ' "\%' . line(".") . 'l\%' . col(".") . 'c\k*"'
 	endif
-	call preview#window_up(0)
-	call preview#window_goto_uid(uid)
+	call preview_enhance#window_up(0)
+	call preview_enhance#window_goto_uid(uid)
 	let text = taginfo.name
 	let text.= ' ('.(opt.index + 1).'/'.len(opt.taglist).') '
 	let text.= filename
 	if has_key(taginfo, 'line')
 		let text .= ':'.taginfo.line
 	endif
-	call preview#cmdmsg(text, 1)
+	call preview_enhance#cmdmsg(text, 1)
 endfunc
 
 
 "----------------------------------------------------------------------
 " display preview file
 "----------------------------------------------------------------------
-function! preview#preview_edit(bufnr, filename, line, cmd, nohl)
-	let uid = preview#window_uid('%', '%')
-	let pid = preview#preview_open()
-	let [l:tabnr, l:winnr] = preview#window_find(pid)
-	call preview#window_goto_tabwin(l:tabnr, l:winnr)
-	call preview#window_saveview()
+function! preview_enhance#preview_edit(bufnr, filename, line, cmd, nohl)
+	let uid = preview_enhance#window_uid('%', '%')
+	let pid = preview_enhance#preview_open()
+	let [l:tabnr, l:winnr] = preview_enhance#window_find(pid)
+	call preview_enhance#window_goto_tabwin(l:tabnr, l:winnr)
+	call preview_enhance#window_saveview()
 	if a:bufnr <= 0
 		silent exec "e! ".fnameescape(a:filename)
 	else
@@ -537,24 +537,24 @@ function! preview#preview_edit(bufnr, filename, line, cmd, nohl)
 			silent exec "b! ".a:bufnr
 		endif
 	endif
-	call preview#window_loadview()
+	call preview_enhance#window_loadview()
 	if a:line > 0
 		noautocmd exec "".a:line
 	endif
 	if a:cmd != ''
 		noautocmd exec a:cmd
 	endif
-	call preview#window_up((a:line > 0 || a:cmd != '') && a:nohl == 0)
-	call preview#window_goto_uid(uid)
+	call preview_enhance#window_up((a:line > 0 || a:cmd != '') && a:nohl == 0)
+	call preview_enhance#window_goto_uid(uid)
 endfunc
 
 
 "----------------------------------------------------------------------
 " goto preview file
 "----------------------------------------------------------------------
-function! preview#preview_goto(cmd)
-	let uid = preview#window_uid('%', '%')
-	let pid = preview#preview_check()
+function! preview_enhance#preview_goto(cmd)
+	let uid = preview_enhance#window_uid('%', '%')
+	let pid = preview_enhance#preview_check()
 	if pid == 0 || &previewwindow != 0 || uid == pid
 		exec "norm! \<esc>"
 		return
@@ -565,16 +565,16 @@ function! preview#preview_goto(cmd)
 			return
 		endif
 	endif
-	let [l:tabnr, l:winnr] = preview#window_find(pid)
+	let [l:tabnr, l:winnr] = preview_enhance#window_find(pid)
 	silent! wincmd P
 	let l:bufnr = winbufnr(l:winnr)
 	let l:bufname = bufname(l:bufnr)
 	let l:line = line('.')
-	call preview#window_goto_uid(uid)
+	call preview_enhance#window_goto_uid(uid)
 	silent exec a:cmd.' '.fnameescape(l:bufname)
 	if winbufnr('%') == l:bufnr
 		silent exec ''.l:line
-		call preview#window_up(0)
+		call preview_enhance#window_up(0)
 	endif
 endfunc
 
@@ -582,7 +582,7 @@ endfunc
 "----------------------------------------------------------------------
 " display quickfix item in preview
 "----------------------------------------------------------------------
-function! preview#preview_quickfix(linenr)
+function! preview_enhance#preview_quickfix(linenr)
 	let linenr = (a:linenr > 0)? a:linenr : line('.')
 	let qflist = getqflist()
 	if linenr < 1 || linenr > len(qflist)
@@ -593,10 +593,10 @@ function! preview#preview_quickfix(linenr)
 	unlet qflist
 	if entry.valid
 		if entry.bufnr > 0
-			call preview#preview_edit(entry.bufnr, '', entry.lnum, '', 0)
+			call preview_enhance#preview_edit(entry.bufnr, '', entry.lnum, '', 0)
 			let text = 'Preview: '.bufname(entry.bufnr)
 			let text.= ' ('.entry.lnum.')'
-			call preview#cmdmsg(text, 1)
+			call preview_enhance#cmdmsg(text, 1)
 		else
 			exec "norm! \<esc>"
 		endif
@@ -610,8 +610,8 @@ endfunc
 "----------------------------------------------------------------------
 " function signature
 "----------------------------------------------------------------------
-function! preview#function_signature(funname, fn_only, filetype)
-	let tags = preview#tagfind(a:funname)
+function! preview_enhance#function_signature(funname, fn_only, filetype)
+	let tags = preview_enhance#tagfind(a:funname)
     let funpat = escape(a:funname, '[\*~^')
 	let fill_tag = []
 	let ft = (a:filetype == '')? &filetype : a:filetype
@@ -795,7 +795,7 @@ endfunc
 "----------------------------------------------------------------------
 
 " get function name
-function! preview#function_name(text)
+function! preview_enhance#function_name(text)
     let name = substitute(a:text,'.\{-}\(\(\k\+::\)*\(\~\?\k*\|'.
                 \'operator\s\+new\(\[]\)\?\|'.
                 \'operator\s\+delete\(\[]\)\?\|'.
@@ -808,7 +808,7 @@ function! preview#function_name(text)
 endfunc
 
 " guess function names
-function! preview#function_guess(text)
+function! preview_enhance#function_guess(text)
 	let size = len(a:text)
 	while size > 0
 		if index(['(', ')', ',', ' ', "\t"], a:text[size - 1]) >= 0
@@ -818,14 +818,14 @@ function! preview#function_guess(text)
 		endif
 	endwhile
 	let limit = (size == 0)? 0 : size - 1
-	return preview#function_name(a:text[0:limit])
+	return preview_enhance#function_name(a:text[0:limit])
 endfunc
 
 
 "----------------------------------------------------------------------
 " function next 
 "----------------------------------------------------------------------
-function! preview#function_prototype(funcname, filetype)
+function! preview_enhance#function_prototype(funcname, filetype)
 	let ft = (a:filetype == '')? &filetype : a:filetype
 	if !exists('w:preview_prototype_cache')
 		let w:preview_prototype_cache = { 'name': '', 'index': 0, 'data': [] }
@@ -833,7 +833,7 @@ function! preview#function_prototype(funcname, filetype)
 	endif
 	let proto = w:preview_prototype_cache
 	if proto.name != a:funcname || proto.ft != ft
-		let res = preview#function_signature(a:funcname, 0, ft)
+		let res = preview_enhance#function_signature(a:funcname, 0, ft)
 		let proto.data = []
 		let proto.index = 0
 		let proto.name = a:funcname
@@ -866,10 +866,10 @@ endfunc
 "----------------------------------------------------------------------
 " list tags in quickfix window 
 "----------------------------------------------------------------------
-function! preview#quickfix_list(name, fn_only, filetype)
-	let res = preview#function_signature(a:name, a:fn_only, a:filetype)
+function! preview_enhance#quickfix_list(name, fn_only, filetype)
+	let res = preview_enhance#function_signature(a:name, a:fn_only, a:filetype)
 	if len(res) == 0
-		call preview#errmsg('E426: tag not found: '. a:name)
+		call preview_enhance#errmsg('E426: tag not found: '. a:name)
 		return 0
 	endif
 	cexpr ""
@@ -887,7 +887,7 @@ endfunc
 "----------------------------------------------------------------------
 " prototype 
 "----------------------------------------------------------------------
-function! preview#function_define(name)
+function! preview_enhance#function_define(name)
 	let line = getline('.')
 	let pos = col('.') - 1
 	let endpos = match(line, '\W', pos)
@@ -909,7 +909,7 @@ function! preview#function_define(name)
 		let endpos = endpos - 1
 	endif
 	if a:name == ''
-		let name = preview#function_guess(line[0:endpos])
+		let name = preview_enhance#function_guess(line[0:endpos])
 	elseif a:name == '<?>'
 		let name = expand('<cword>')
 	else
@@ -918,24 +918,24 @@ function! preview#function_define(name)
 	if name == ''
 		return ''
 	endif
-	return preview#function_prototype(name, &filetype)
+	return preview_enhance#function_prototype(name, &filetype)
 endfunc
 
 " function preview
-function! preview#function_echo(name, nosc)
-	let text = preview#function_define(a:name)
+function! preview_enhance#function_echo(name, nosc)
+	let text = preview_enhance#function_define(a:name)
 	if text == ''
 		return ''
 	endif
 	if a:nosc != 0
 		set noshowmode
 	endif
-	call preview#cmdmsg(text, 1)
+	call preview_enhance#cmdmsg(text, 1)
 	return ''
 endfunc
 
 " scroll previous window
-function! preview#previous_scroll(offset)
+function! preview_enhance#previous_scroll(offset)
 	if winnr('$') <= 1
 		return
 	endif
@@ -953,9 +953,9 @@ function! preview#previous_scroll(offset)
 endfunc
 
 " scroll preview window
-function! preview#preview_scroll(offset)
-	let uid = preview#window_uid('%', '%')
-	let pid = preview#preview_check()
+function! preview_enhance#preview_scroll(offset)
+	let uid = preview_enhance#window_uid('%', '%')
+	let pid = preview_enhance#preview_check()
 	if pid <= 0
 		exec "norm! \<esc>"
 		return
